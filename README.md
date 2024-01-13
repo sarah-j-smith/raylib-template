@@ -10,6 +10,9 @@
 * Set up [C++ support in VS Code]
 * Download this template
 * Double-click the `main.code-workspace` file.
+* Install the Recommended extensions
+    * [C++ TestMate]
+    * Makefile
 * Edit the `main.cpp` file to create your game.
 * Press ⌘-⇧-B (on Mac) or Terminal > Run Build Task...
 
@@ -23,11 +26,25 @@ Over the templates listed below what I did:
 * Added all this doco so I could remember how to use this.
 * Made a basic `main.cpp` that I liked.
 * Included the `doctest.h` header file to write tests with.
+* Added some code to demonstrate writing DocTests
+* Updated the Recommended extensions and the files under `.vscode`
+
+## Using VSCodes Test Navigator
+
+Out-of-the-box this starter template should allow running tests on your
+code via Visual Studio Codes test navigator UI:
+
+![Test Nav screenshot](doc/test-navigator.png)
+
+I've really only tested this on Mac. Any contributions for other platforms
+are welcome.
 
 ## Executable Makefile is bad
 
 There is a make clean rule in the Makefile which deletes every file in the 
 folder that is executable. If you do `make clean` this will delete the Makefile.
+For this reason I've made the Makefile not executable. I'm considering narrowing
+the `make clean` rule as well.
 
 ## Project Name
 
@@ -69,6 +86,7 @@ There is nothing to install.
 * Which seems to be based on [templates on Raylib]
 
 [C++ support in VS Code]: https://code.visualstudio.com/docs/languages/cpp
+[C++ TestMate]: https://github.com/matepek/vscode-catch2-test-adapter/tree/master#c-testmate
 [games in C++ using Raylib]: https://www.raylib.com/examples.html
 [Visual Studio Code]: https://code.visualstudio.com/download
 [DocTest]: https://github.com/doctest/doctest

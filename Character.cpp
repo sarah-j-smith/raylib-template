@@ -69,6 +69,7 @@ Character::Character(Texture2D texture, int numberOfFrames)
     , wd(w)
     , ht(h)
     , pos(Vector2{(windowWidth - wd) / 2.0f, (windowHeight - ht) / 2.0f})
+    , frameCount(numberOfFrames)
 {
     velocity = 30.0f;
     updateTime = 1.0f / 12.0f; // Target 12 fps
@@ -79,6 +80,11 @@ Character::~Character()
     UnloadTexture(tex);
 }
 
+/**
+ * Called to update the characters world movement prior 
+ * Note that the very first iteration of the game loop `deltaTime`
+ * will be `0` (zero).
+*/
 void Character::move(float deltaTime)
 {
     // World move
@@ -90,28 +96,21 @@ void Character::move(float deltaTime)
     }
 }
 
+/**
+ * Called to update the characters animation prior to display
+ * Note that the very first iteration of the game loop `deltaTime`
+ * will be `0` (zero).
+*/
 void Character::update(float deltaTime)
 {
-    if (dix < 10)
-    {
-        deltas[dix++] = deltaTime;
-    } else if (dix == 11) {
-        std::cout << "Deltas:" << std::endl;
-        for (int i = 0; i < 10; i++)
-        {
-            std::cout << deltas[i] << std::endl;
-        }
-        dix++;
-    }
     // Update animation
+    runningTime += deltaTime;
     if (runningTime > updateTime)
     {
         runningTime = 0;
         frame++;
         if (frame >= frameCount)
             frame = 0;
-    } else {
-        runningTime += deltaTime;
     }
 };
 
