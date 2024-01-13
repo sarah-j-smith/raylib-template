@@ -18,15 +18,15 @@
 
 # Changes 
 
-Over the templates listed below what I did:
+Over the templates listed below in Credits what I did:
 
-* Added a header file for writing tests using [DocTest].
+* Added the [DocTest] header file for writing tests.
 * Changed the `launch.json` and `tasks.json` Project Name
 * Made the Makefile not executable 
 * Added all this doco so I could remember how to use this.
 * Made a basic `main.cpp` that I liked.
 * Included the `doctest.h` header file to write tests with.
-* Added some code to demonstrate writing DocTests
+* Added some code to demonstrate writing DocTests `Character.cpp|h`
 * Updated the Recommended extensions and the files under `.vscode`
 
 ## Using VSCodes Test Navigator
@@ -43,6 +43,7 @@ are welcome.
 
 There is a make clean rule in the Makefile which deletes every file in the 
 folder that is executable. If you do `make clean` this will delete the Makefile.
+
 For this reason I've made the Makefile not executable. I'm considering narrowing
 the `make clean` rule as well.
 
@@ -82,9 +83,13 @@ There is nothing to install.
 
 # Credits
 
-* Based on the template from [GameDev.tv]
-* Which seems to be based on [templates on Raylib]
+* Most of this is leveraging work by other people
+    * Its based on the template from [GameDev.tv]
+    * Which seems to be based on [templates on Raylib]
+* The `main.cpp` and `Character.cpp|h` files are inspired by a GameDev.tv course
+* I have included LICENSE file to cover the content done by me (see Changes above).
 
+[Raylib]: https://github.com/raysan5/raylib/#build-and-installation
 [C++ support in VS Code]: https://code.visualstudio.com/docs/languages/cpp
 [C++ TestMate]: https://github.com/matepek/vscode-catch2-test-adapter/tree/master#c-testmate
 [games in C++ using Raylib]: https://www.raylib.com/examples.html
