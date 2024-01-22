@@ -21,7 +21,7 @@
 #
 #**************************************************************************************************
 
-.PHONY: all clean
+.PHONY: all clean FORCE
 
 # Define required raylib variables
 PROJECT_NAME       ?= game
@@ -63,6 +63,41 @@ USE_EXTERNAL_GLFW     ?= FALSE
 # Use Wayland display server protocol on Linux desktop
 # by default it uses X11 windowing system
 USE_WAYLAND_DISPLAY   ?= FALSE
+
+# Check for Windows
+ifeq ($(OS), Windows_NT)
+	# Set Windows macros
+	platform := Windows
+	CXX ?= g++
+	linkFlags += -Wl,--allow-multiple-definition -pthread -lopengl32 -lgdi32 -lwinmm -mwindows -static -static-libgcc -static-libstdc++
+	THEN := &&
+	PATHSEP := \$(BLANK)
+	MKDIR := -mkdir -p
+	RM := -del /q
+	COPY = -robocopy "$(call platformpth,$1)" "$(call platformpth,$2)" $3
+else
+	# Check for MacOS/Linux
+	UNAMEOS := $(shell uname)
+	ifeq ($(UNAMEOS), Linux)
+		# Set Linux macros
+		platform := Linux
+		CXX ?= g++
+		linkFlags += -l GL -l m -l pthread -l dl -l rt -l X11
+	endif
+	ifeq ($(UNAMEOS), Darwin)
+		# Set macOS macros
+		platform := macOS
+		CXX ?= clang++
+		linkFlags += -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL
+	endif
+
+	# Set UNIX macros
+	THEN := ;
+	PATHSEP := /
+	MKDIR := mkdir -p
+	RM := rm -rf
+	COPY = cp $1$(PATHSEP)$3 $2
+endif
 
 # Determine PLATFORM_OS in case PLATFORM_DESKTOP selected
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
@@ -195,7 +230,8 @@ endif
 #  -std=gnu99           defines C language mode (GNU C from 1999 revision)
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
-CFLAGS += -Wall -std=c++14 -D_DEFAULT_SOURCE -Wno-missing-braces
+#CFLAGS += -Wall -std=c++14 -D_DEFAULT_SOURCE -Wno-missing-braces
+CFLAGS += -Wall -std=c++17 -D_DEFAULT_SOURCE -Wno-missing-braces
 
 ifeq ($(BUILD_MODE),DEBUG)
     CFLAGS += -g -O0
@@ -366,16 +402,40 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 endif
 
 # Define a recursive wildcard function
-rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
+#rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
+
+# Define custom functions
+rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
+platformpth = $(subst /,$(PATHSEP),$1)
 
 # Define all source files required
 SRC_DIR = src
 OBJ_DIR = obj
+TST_DIR = test
 
 # Define all object files from source files
-SRC = $(call rwildcard, *.c, *.h)
-#OBJS = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
-OBJS ?= main.c
+#SRC = $(call rwildcard, *.cpp)
+#OBJS = $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+#OBJS ?= main.c
+
+sources := $(call rwildcard,$(SRC_DIR)/,*.cpp)
+objects := $(patsubst $(SRC_DIR)/%, $(OBJ_DIR)/%, $(patsubst %.cpp, %.o, $(sources)))
+depends := $(patsubst %.o, %.d, $(objects))
+compileFlags := -I./src $(CFLAGS)
+
+# Always force compiling the main.cpp - this is because when the _TEST macro is
+# defined by using the BUILD_MODE = TEST there is no _change_ to main.cpp but
+# it still must be recompiled because we are switching between the DocTest
+# main and the real runtime main.
+mainForce := FORCE
+
+ifeq ($(BUILD_MODE),TEST)
+    test_sources := $(call rwildcard,$(TST_DIR)/,*.cpp)
+    test_objects := $(patsubst $(TST_DIR)/%, $(OBJ_DIR)/%, $(patsubst %.cpp, %.o, $(test_sources)))
+    test_depends := $(patsubst %.o, %.d, $(test_objects))
+
+    objects += $(test_objects)
+endif
 
 # For Android platform we call a custom Makefile.Android
 ifeq ($(PLATFORM),PLATFORM_ANDROID)
@@ -392,27 +452,51 @@ all:
 	$(MAKE) $(MAKEFILE_PARAMS)
 
 # Project target defined by PROJECT_NAME
-$(PROJECT_NAME): $(OBJS)
-	$(CC) -o $(PROJECT_NAME)$(EXT) $(OBJS) $(CFLAGS) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM)
+$(PROJECT_NAME): $(objects)
+	$(CC) -o $(PROJECT_NAME)$(EXT) $(objects) $(CFLAGS) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM)
+
+# Add all rules from dependency files
+-include $(depends)
+
+ifeq ($(BUILD_MODE),TEST)
+    -include $(test_depends)
+endif
 
 # Compile source files
 # NOTE: This pattern will compile every module defined on $(OBJS)
 #%.o: %.c
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
+# $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+# 	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
+
+# Compile objects to the build directory
+$(OBJ_DIR)/main.o: $(mainForce)
+
+FORCE:
+
+$(OBJ_DIR)/%.o: src/%.cpp
+	@$(MKDIR) $(call platformpth, $(@D))
+	$(CXX) -MMD -MP -c $(compileFlags) $(INCLUDE_PATHS) $< -o $@ $(CXXFLAGS) -D$(PLATFORM)
+
+$(OBJ_DIR)/%.o: test/%.cpp
+	@$(MKDIR) $(call platformpth, $(@D))
+	$(CXX) -MMD -MP -c $(compileFlags) $(INCLUDE_PATHS) $< -o $@ $(CXXFLAGS) -D$(PLATFORM)
+
 
 # Clean everything
 clean:
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
     ifeq ($(PLATFORM_OS),WINDOWS)
 		del *.o *.exe /s
+		del obj\*
     endif
     ifeq ($(PLATFORM_OS),LINUX)
-	find -type f -executable | xargs file -i | grep -E 'x-object|x-archive|x-sharedlib|x-executable' | rev | cut -d ':' -f 2- | rev | xargs rm -fv
+	    find -type f -executable | xargs file -i | grep -E 'x-object|x-archive|x-sharedlib|x-executable' | rev | cut -d ':' -f 2- | rev | xargs rm -fv
+		rm obj/*
     endif
     ifeq ($(PLATFORM_OS),OSX)
 		find . -type f -perm +ugo+x -delete
 		rm -f *.o
+		rm obj/*
     endif
 endif
 ifeq ($(PLATFORM),PLATFORM_RPI)

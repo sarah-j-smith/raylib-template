@@ -6,15 +6,8 @@
 
 #include "raymath.h"
 
-#include <iostream>
-
-// #define _TEST
-
-#ifdef _TEST
 #include "doctest.h"
-#endif
 
-#ifdef _TEST
 class Character_Test: public Character {
 public:
     using Character::Character;
@@ -59,64 +52,4 @@ TEST_CASE("character tests")
         CHECK(sut->getRunningTime() == 0.0f);
         CHECK(sut->getFrame() == 1);
     }
-}
-#endif
-
-Character::Character(Texture2D texture, int numberOfFrames)
-    : tex(texture)
-    , w(texture.width / numberOfFrames)
-    , h(texture.height)
-    , wd(w)
-    , ht(h)
-    , pos(Vector2{(windowWidth - wd) / 2.0f, (windowHeight - ht) / 2.0f})
-    , frameCount(numberOfFrames)
-{
-    velocity = 30.0f;
-    updateTime = 1.0f / 12.0f; // Target 12 fps
-}
-
-Character::~Character()
-{
-    UnloadTexture(tex);
-}
-
-/**
- * Called to update the characters world movement prior 
- * Note that the very first iteration of the game loop `deltaTime`
- * will be `0` (zero).
-*/
-void Character::move(float deltaTime)
-{
-    // World move
-    pos.x += velocity * deltaTime;
-    if (pos.x > windowWidth * 0.8 || pos.x < 0.2)
-    {
-        velocity = -velocity;
-        leftRight = -leftRight;
-    }
-}
-
-/**
- * Called to update the characters animation prior to display
- * Note that the very first iteration of the game loop `deltaTime`
- * will be `0` (zero).
-*/
-void Character::update(float deltaTime)
-{
-    // Update animation
-    runningTime += deltaTime;
-    if (runningTime > updateTime)
-    {
-        runningTime = 0;
-        frame++;
-        if (frame >= frameCount)
-            frame = 0;
-    }
-};
-
-void Character::draw()
-{
-    Rectangle src{frame * wd, 0.0f, leftRight * wd, ht};
-    Rectangle dst{pos.x, pos.y, wd * scale, ht * scale};
-    DrawTexturePro(tex, src, dst, Vector2Zero(), 0.0, WHITE);
 }

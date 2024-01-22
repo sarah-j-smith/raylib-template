@@ -15,15 +15,13 @@
                 "command": "C:/raylib/w64devkit/bin/mingw32-make.exe",
                 "args": [
                     "RAYLIB_PATH=C:/raylib/raylib",
-                    "PROJECT_NAME=${workspaceFolderBasename}",
-                    "OBJS=*.cpp",
+                    "PROJECT_NAME=${workspaceFolderBasename}_d",
                     "BUILD_MODE=DEBUG"
                 ]
             },
             "osx": {
                 "args": [
                     "PROJECT_NAME=${workspaceFolderBasename}",
-                    "OBJS=*.cpp",
                     "BUILD_MODE=DEBUG"
                 ]
             },
@@ -33,7 +31,6 @@
                     "DESTDIR=/home/linuxbrew/.linuxbrew",
                     "RAYLIB_LIBTYPE=SHARED",
                     "EXAMPLE_RUNTIME_PATH=/home/linuxbrew/.linuxbrew/lib",
-                    "OBJS=*.cpp",
                     "BUILD_MODE=DEBUG"
                 ]
             },
@@ -58,14 +55,12 @@
                 "args": [
                     "RAYLIB_PATH=C:/raylib/raylib",
                     "PROJECT_NAME=${workspaceFolderBasename}_test",
-                    "OBJS=*.cpp",
                     "BUILD_MODE=TEST"
                 ]
             },
             "osx": {
                 "args": [
                     "PROJECT_NAME=${workspaceFolderBasename}_test",
-                    "OBJS=*.cpp",
                     "BUILD_MODE=TEST"
                 ]
             },
@@ -75,7 +70,6 @@
                     "DESTDIR=/home/linuxbrew/.linuxbrew",
                     "RAYLIB_LIBTYPE=SHARED",
                     "EXAMPLE_RUNTIME_PATH=/home/linuxbrew/.linuxbrew/lib",
-                    "OBJS=*.cpp",
                     "BUILD_MODE=TEST"
                 ]
             },
@@ -99,13 +93,11 @@
                 "args": [
                     "RAYLIB_PATH=C:/raylib/raylib",
                     "PROJECT_NAME=${workspaceFolderBasename}",
-                    "OBJS=*.cpp"
                 ]
             },
             "osx": {
                 "args": [
                     "PROJECT_NAME=${workspaceFolderBasename}",
-                    "OBJS=*.cpp"
                 ]
             },
             "linux": {
@@ -114,7 +106,6 @@
                     "DESTDIR=/home/linuxbrew/.linuxbrew",
                     "RAYLIB_LIBTYPE=SHARED",
                     "EXAMPLE_RUNTIME_PATH=/home/linuxbrew/.linuxbrew/lib",
-                    "OBJS=*.cpp"
                 ]
             },
             "problemMatcher": [

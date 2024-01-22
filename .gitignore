@@ -1,3 +1,6 @@
+ClassyClash
+ClassyClash_test
 *.exe
 *.dsym
 main
+obj/*
