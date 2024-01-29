@@ -16,6 +16,57 @@
 * Edit the `main.cpp` file to create your game.
 * Press ⌘-⇧-B (on Mac) or Terminal > Run Build Task...
 
+# Steps for Web 
+
+### Setup
+
+* Install [Raylib for Web]
+
+Get the release to match whatever version of Raylib you have. Unzip it and put it where 
+the script can reach it.
+
+* Install [Emscripten]
+* Activate the SDK
+
+```bash
+# Get the emsdk repo
+cd $HOME
+git clone https://github.com/emscripten-core/emsdk.git
+
+# Enter that directory
+cd emsdk
+
+# Fetch the latest version of the emsdk (not needed the first time you clone)
+git pull
+
+# Download and install the latest SDK tools.
+./emsdk install latest
+
+# Make the "latest" SDK "active" for the current user. (writes .emscripten file)
+./emsdk activate latest
+```
+
+* Configure `CompileWeb.sh` if needed
+
+```Makefile
+PROJECT=RaylibStarter
+RAYPATH=./raylib-5.0_webassembly
+```
+## Build for Web
+
+* In your project source the environment
+
+```bash
+cd $HOME/RaylibStarter
+
+# Activate PATH and other environment variables in the current terminal
+source $HOME/emsdk/emsdk_env.sh
+
+./CompileWeb.sh
+```
+
+
+
 # Changes 
 
 Over the templates listed below in Credits what I did:
@@ -99,3 +150,5 @@ There is nothing to install.
 [using VS Code with Raylib]: https://github.com/raysan5/raylib/wiki/Using-raylib-in-VSCode
 [GameDev.tv]: https://gitlab.com/GameDevTV/CPPCourse/vscode-template
 [templates on Raylib]: https://github.com/raysan5/raylib/wiki/raylib-templates
+[Emscripten]: https://emscripten.org/docs/getting_started/downloads.html
+[Raylib for Web]: https://github.com/raysan5/raylib/releases/tag/5.0

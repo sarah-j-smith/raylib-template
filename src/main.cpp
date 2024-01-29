@@ -32,6 +32,10 @@
 
 #else
 
+#if defined(PLATFORM_WEB)
+    #include <emscripten/emscripten.h>
+#endif
+
 #include "raylib.h"
 #include "raymath.h"
 
@@ -40,6 +44,30 @@
 
 #include <iostream>
 
+const int FRAME_RATE = 24;
+
+class GameData
+{
+public:
+    Character *skeleton;
+};
+
+GameData *gd = 0;
+
+void GameLoop()
+{
+    const float dT = GetFrameTime();
+    gd->skeleton->move(dT);
+    gd->skeleton->update(dT);
+
+    BeginDrawing();
+    ClearBackground(BLUE);
+
+    gd->skeleton->draw();
+
+    EndDrawing();
+}
+
 int main(int argc, char *argv[])
 {
     InitWindow(windowWidth, windowHeight, argv[0]);
@@ -47,28 +75,23 @@ int main(int argc, char *argv[])
     std::cout << "Hello world" << std::endl;
 
     const int numberOfFrames = 13;
-    auto skeleton = new Character {
-        LoadTexture("Skeleton Walk.png"),
+    gd->skeleton = new Character {
+        LoadTexture("resources/SkeletonWalk.png"),
         numberOfFrames
     };
 
-    SetTargetFPS(6);
+#if defined(PLATFORM_WEB)
+    emscripten_set_main_loop(GameLoop, FRAME_RATE, 1);
+#else
+    SetTargetFPS(FRAME_RATE);
     while (!WindowShouldClose())
     {
-        const float dT = GetFrameTime();
-        skeleton->move(dT);
-        skeleton->update(dT);
-
-        BeginDrawing();
-        ClearBackground(BLUE);
-
-        skeleton->draw();
-
-        EndDrawing();
+        GameLoop();
     }
+#endif
 
     // Free and unload texture
-    delete skeleton;
+    delete gd->skeleton;
 
     CloseWindow();
 }
